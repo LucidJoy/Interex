@@ -13,6 +13,9 @@ export default function Home() {
 
   return (
     <div className='h-[600px] w-full bg-transparent flex flex-col items-center justify-center overflow-hidden'>
+      <p className='text-white/70 text-base mb-[20px]'>
+        The new era of banking starts from here
+      </p>
       <h1 className='md:text-7xl text-3xl lg:text-8xl font-bold text-center text-white relative z-20'>
         Interex
       </h1>
@@ -40,6 +43,12 @@ export default function Home() {
         onClick={() => router.push("/home")}
       >
         <AnimatedButton btnName='Launch app' />
+      </div>
+
+      <div className='absolute bottom-[10px]'>
+        <p className='text-muted-foreground text-xs'>
+          Copyright © 2024 by Interex, Inc. All rights reserved.
+        </p>
       </div>
     </div>
   );
