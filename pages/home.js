@@ -1,4 +1,6 @@
 import React from "react";
+import { useRouter } from "next/router";
+
 import {
   Table,
   TableBody,
@@ -9,17 +11,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "@radix-ui/react-icons";
 
 const Home = () => {
+  const router = useRouter();
+
   return (
     <div className='flex items-center justify-center flex-col mt-[50px]'>
       <div className='text-white w-[1000px]'>
         <div className='flex flex-row justify-between items-center mb-[20px]'>
           <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
-            Active Borrowings
+            Liquidity Providers
           </h3>
-          <Button>Borrow</Button>
+          <Button onClick={() => router.push("/pool")}>Add Liquidity</Button>
         </div>
 
         <Table>
@@ -29,7 +32,7 @@ const Home = () => {
               <TableHead className='w-[100px]'>Sl.</TableHead>
               <TableHead>Address</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Score</TableHead>
+              <TableHead>Pool Earnings</TableHead>
               <TableHead>Tenure</TableHead>
               <TableHead className='text-center'>Pay</TableHead>
             </TableRow>
