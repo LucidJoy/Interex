@@ -17,26 +17,33 @@ import interexPoolABI from "../context/InterexPool.json";
 
 import { CreditContext } from "@/context/CreditContext";
 import { toast } from "sonner";
+import Loading from "./Loading";
+import { RotateCw } from "lucide-react";
 
 const BorrowTokens = () => {
-  const { addLiquidity, interexPoolAddress, getUsersTokenBalance } =
-    useContext(CreditContext);
+  const {
+    borrowTokens,
+    interexPoolAddress,
+    borrowTokensLoad,
+    getPoolEarnings,
+  } = useContext(CreditContext);
   const { address } = useAccount();
 
   const [lenderAddress, setLenderAddress] = useState("");
   const [borrowAmount, setBorrowAmount] = useState(1);
-  const [lenderBalance, setLenderBalance] = useState(null);
+  const [lenderPoolEarning, setLenderPoolEarning] = useState(null);
 
-  const { data, isError, isLoading } = useContractRead({
-    address: interexPoolAddress,
-    abi: interexPoolABI,
-    functionName: "getTokenBalance",
-    account: address,
-  });
-
-  useEffect(() => {
-    setLenderBalance(ethers.utils.formatEther(data));
-  }, [isLoading]);
+  const handleRefresh = async () => {
+    try {
+      // should be earnings, not balance
+      const balance = await getPoolEarnings(lenderAddress);
+      balance && setLenderPoolEarning(ethers?.utils?.formatEther(balance));
+      toast.success("Refreshed");
+    } catch (error) {
+      // toast.error("Lender address invalid.");
+      console.log(error);
+    }
+  };
 
   return (
     <Card>
@@ -84,16 +91,36 @@ const BorrowTokens = () => {
             <p className='font-semibold'>10%</p>
           </div>
           <div className='flex items-center flex-row justify-between w-full'>
-            <p className='text-muted-foreground'>Lender balance (INTX): </p>
-            <p className='font-semibold'>{lenderBalance}</p>
+            <div className='flex flex-row items-center justify-center gap-[10px]'>
+              <p className='text-muted-foreground'>Lender balance (INTX): </p>
+
+              <div
+                className='bg-muted-foreground/30 border border-white/20 rounded-sm py-[4px] px-[6px] hover:cursor-pointer'
+                onClick={() => handleRefresh()}
+              >
+                <button className='font-normal text-[12px] flex items-center justify-center'>
+                  <RotateCw className='h-4 w-4 text-muted-foreground' />
+                </button>
+              </div>
+            </div>
+
+            <div className='font-semibold'>
+              {lenderPoolEarning ? lenderPoolEarning : 0}
+            </div>
           </div>
         </div>
       </CardContent>
 
       <CardFooter>
-        <Button onClick={() => console.log(ethers.utils.formatEther(data))}>
-          Borrow
-        </Button>
+        {borrowTokensLoad ? (
+          <div>
+            <Loading />
+          </div>
+        ) : (
+          <Button onClick={() => borrowTokens(lenderAddress, borrowAmount)}>
+            Borrow
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

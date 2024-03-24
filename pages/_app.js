@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { WagmiConfig, createConfig } from "wagmi";
 import { polygonMumbai, kromaSepolia } from "wagmi/chains";
 import {
@@ -5,6 +6,7 @@ import {
   ConnectKitButton,
   getDefaultConfig,
 } from "connectkit";
+import { watchAccount } from "@wagmi/core";
 
 import { CreditProvider } from "@/context/CreditContext";
 import { Separator } from "@/components/ui/separator";

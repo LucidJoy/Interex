@@ -1,7 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useContractRead } from "wagmi";
+import { toast } from "sonner";
+import { ethers } from "ethers";
+import { useAccount } from "wagmi";
 
-import interexPoolABI from "../context/InterexPool.json";
 import {
   Card,
   CardContent,
@@ -13,14 +15,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
-
+import interexPoolABI from "../context/InterexPool.json";
 import { CreditContext } from "@/context/CreditContext";
-import { toast } from "sonner";
-import { ethers } from "ethers";
+import Loading from "./Loading";
 
 const AddLiquidity = () => {
-  const { addLiquidity, interexPoolAddress, poolBalance, setPoolBalance } =
-    useContext(CreditContext);
+  const {
+    addLiquidity,
+    interexPoolAddress,
+    poolBalance,
+    setPoolBalance,
+    getTokenBalance,
+    addLiquidityLoad,
+  } = useContext(CreditContext);
+  const { address } = useAccount();
 
   const [tokenAmount, setTokenAmount] = useState(1);
 
@@ -28,16 +36,16 @@ const AddLiquidity = () => {
     addLiquidity(tokenAmount.toString());
   };
 
-  const { data, isError, isLoading } = useContractRead({
+  const { data, isError } = useContractRead({
     address: interexPoolAddress,
     abi: interexPoolABI,
     functionName: "getTokenBalance",
-    account: interexPoolAddress,
+    args: [interexPoolAddress],
   });
 
   useEffect(() => {
-    setPoolBalance(ethers.utils.formatEther(data));
-  }, [isLoading]);
+    data && setPoolBalance(ethers.utils.formatEther(data));
+  }, [addLiquidityLoad, data]);
 
   return (
     <Card>
@@ -71,19 +79,20 @@ const AddLiquidity = () => {
             <p className='font-semibold'>10%</p>
           </div>
           <div className='flex items-center flex-row justify-between w-full'>
-            <p className='text-muted-foreground'>Total Value Locked (INTX): </p>
-            <p
-              className='font-semibold'
-              onClick={() => console.log(ethers.utils.formatEther(data))}
-            >
-              {poolBalance}
-            </p>
+            <p className='text-muted-foreground'>Pool TVL (INTX): </p>
+            <p className='font-semibold'>{poolBalance ? poolBalance : 0}</p>
           </div>
         </div>
       </CardContent>
 
       <CardFooter>
-        <Button onClick={handleLiquidity}>Add Liquidity</Button>
+        {addLiquidityLoad ? (
+          <div>
+            <Loading />
+          </div>
+        ) : (
+          <Button onClick={handleLiquidity}>Add Liquidity</Button>
+        )}
       </CardFooter>
     </Card>
   );

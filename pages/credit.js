@@ -40,7 +40,7 @@ const Credit = () => {
               <TableCell>357</TableCell>
               <TableCell>1%</TableCell>
               <TableCell className='text-center'>
-                <Button variant='green'>Request</Button>
+                <Button variant='green'>Repay</Button>
               </TableCell>
             </TableRow>
             <TableRow>
@@ -49,7 +49,7 @@ const Credit = () => {
               <TableCell>456</TableCell>
               <TableCell>3%</TableCell>
               <TableCell className='text-center'>
-                <Button variant='green'>Request</Button>
+                <Button variant='green'>Repay</Button>
               </TableCell>
             </TableRow>
             <TableRow>
@@ -58,7 +58,7 @@ const Credit = () => {
               <TableCell>553</TableCell>
               <TableCell>2%</TableCell>
               <TableCell className='text-center'>
-                <Button variant='green'>Request</Button>
+                <Button variant='green'>Repay</Button>
               </TableCell>
             </TableRow>
           </TableBody>

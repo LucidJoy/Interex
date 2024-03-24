@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@enzoferey/ethers-error-parser": "^0.2.3",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-select": "^2.0.0",
@@ -29,6 +30,7 @@
     "ethers": "^5.7.2",
     "framer-motion": "^11.0.8",
     "gltfjsx": "^6.2.16",
+    "lucide-react": "^0.360.0",
     "next": "14.0.4",
     "next-themes": "^0.2.1",
     "react": "^18",

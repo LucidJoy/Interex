@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { ethers } from "ethers";
 
 import {
   Table,
@@ -11,64 +12,73 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { CreditContext } from "@/context/CreditContext";
+import { shortenAddress } from "@/utils/shortenAddr";
 
 const Home = () => {
+  const { allPoolLenders, liquidityProvidersArr } = useContext(CreditContext);
+
+  const [allLenders, setAllLenders] = useState(0);
+
+  // useEffect(() => {
+  //   const all = async () => {
+  //     const val = await liquidityProvidersArr();
+  //     setAllLenders(val);
+  //   };
+  //   all();
+  // }, [liquidityProvidersArr, allLenders]);
+
+  // const handleClick = () => {
+  //   console.log(allPoolLenders);
+  // };
+
   const router = useRouter();
 
   return (
     <div className='flex items-center justify-center flex-col mt-[50px]'>
       <div className='text-white w-[1000px]'>
         <div className='flex flex-row justify-between items-center mb-[20px]'>
-          <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
+          <h3
+            className='scroll-m-20 text-2xl font-semibold tracking-normal'
+            onClick={() => console.log(allPoolLenders)}
+          >
             Liquidity Providers
           </h3>
           <Button onClick={() => router.push("/pool")}>Add Liquidity</Button>
         </div>
 
         <Table>
-          <TableCaption>A list of your recent borrowings.</TableCaption>
+          <TableCaption>All tokens are valued referring to INTX.</TableCaption>
           <TableHeader>
             <TableRow className='hover:bg-transparent'>
-              <TableHead className='w-[100px]'>Sl.</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Pool Earnings</TableHead>
-              <TableHead>Tenure</TableHead>
-              <TableHead className='text-center'>Pay</TableHead>
+              <TableHead className='text-center'>Sl.</TableHead>
+              <TableHead className='text-center'>Address</TableHead>
+              <TableHead className='text-center'>Lended</TableHead>
+              <TableHead className='text-center'>Pool Yield</TableHead>
+              <TableHead className='text-center'>Borrowers</TableHead>
+              <TableHead className='text-center'>Revoke Liquidity</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            <TableRow>
-              <TableCell className='font-medium'>1</TableCell>
-              <TableCell>0xabc...def</TableCell>
-              <TableCell>$1000</TableCell>
-              <TableCell>357</TableCell>
-              <TableCell>7 days</TableCell>
-              <TableCell className='text-center'>
-                <Button variant='green'>Send</Button>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className='font-medium'>2</TableCell>
-              <TableCell>0xabc...def</TableCell>
-              <TableCell>$2000</TableCell>
-              <TableCell>400</TableCell>
-              <TableCell>7 days</TableCell>
-              <TableCell className='text-center'>
-                <Button variant='green'>Send</Button>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className='font-medium'>3</TableCell>
-              <TableCell>0xabc...def</TableCell>
-              <TableCell>$3000</TableCell>
-              <TableCell>645</TableCell>
-              <TableCell>7 days</TableCell>
-              <TableCell className='text-center'>
-                <Button variant='green'>Send</Button>
-              </TableCell>
-            </TableRow>
+            {allPoolLenders ? (
+              allPoolLenders.map((lender, idx) => (
+                <TableRow className='text-center'>
+                  <TableCell className='font-medium'>{idx + 1}</TableCell>
+                  <TableCell>{shortenAddress(lender.lender)}</TableCell>
+                  <TableCell>{lender.amountLended}</TableCell>
+                  <TableCell>{lender.poolEarnings}</TableCell>
+                  <TableCell>0 (HC)</TableCell>
+                  <TableCell className='text-center'>
+                    <Button variant='green'>Remove</Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <div>No lenders found!</div>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

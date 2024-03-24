@@ -34,7 +34,7 @@ const Navbar = () => {
               router.pathname == "/home" && "bg-accent text-accent-foreground"
             )}
           >
-            Home
+            Lenders
           </Button>
 
           <Button
@@ -57,6 +57,18 @@ const Navbar = () => {
             )}
           >
             Pool
+          </Button>
+
+          <Button
+            variant='ghost'
+            onClick={() => router.push("/account")}
+            className={cn(
+              "",
+              router.pathname == "/account" &&
+                "bg-accent text-accent-foreground"
+            )}
+          >
+            Account
           </Button>
         </div>
       </div>

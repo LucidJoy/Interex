@@ -1,33 +1,58 @@
 import React, { createContext, useState, useEffect } from "react";
+import { ethers } from "ethers";
+import { getParsedEthersError } from "@enzoferey/ethers-error-parser";
+import { useAccount } from "wagmi";
+import { toast } from "sonner";
 
 import InterexPoolABI from "./InterexPool.json";
-import { ethers } from "ethers";
+import Interex20ABI from "./Interex20.json";
+import { formatLiquidityProviders } from "@/utils/formatLiquidityProviders";
 
 export const CreditContext = createContext({});
 
 // mumbai testnet
-// Interex20: 0xc34e3F6558A5b7Ae66932a0ADf5A402A157BeE81
-// InterexPool: 0x8355c5730d1F6AF0d46DCF618044F6877296c4C2
+// const interexPoolAddress = "0xd578Eb5FAC047b980Bae61cBf709bEF50C7c47d8";
+// const interex20Address = "0x43dCe167b5469229E3B5D2C883a99aBbF7e9cF5A";
 
 export const CreditProvider = ({ children }) => {
-  const [first, setFirst] = useState(false);
-  const [tokenA, setTokenA] = useState("");
-  const [tokenB, setTokenB] = useState("");
-  const [currentUser, setCurrentUser] = useState("");
   const [poolBalance, setPoolBalance] = useState(null);
+  const [allPoolLenders, setAllPoolLenders] = useState([]);
 
-  const [isLoading, setIsLoading] = useState(false);
+  // loading states
+  const [addLiquidityLoad, setAddLiquidityLoad] = useState(false);
+  const [borrowTokensLoad, setBorrowTokensLoad] = useState(false);
 
-  const interexPoolAddress = "0xf44f15a55693043454714Af56Bd5e32c193E3529";
+  const interexPoolAddress = "0xd578Eb5FAC047b980Bae61cBf709bEF50C7c47d8";
+  const interex20Address = "0x43dCe167b5469229E3B5D2C883a99aBbF7e9cF5A";
+
+  // use effects
+  useEffect(() => {
+    liquidityProvidersArr();
+  }, [allPoolLenders]);
 
   const addLiquidity = async (amount) => {
     try {
       if (window.ethereum) {
+        setAddLiquidityLoad(true);
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = provider.getSigner();
 
-        const contract = new ethers.Contract(
+        const tokenContract = new ethers.Contract(
+          interex20Address,
+          Interex20ABI,
+          signer
+        );
+
+        const amountToApprove = ethers.utils.parseEther(amount);
+        const approvalTx = await tokenContract.approve(
+          interexPoolAddress,
+          amountToApprove,
+          { gasLimit: 500000 }
+        );
+        await approvalTx.wait(1);
+
+        const poolContract = new ethers.Contract(
           interexPoolAddress,
           InterexPoolABI,
           signer
@@ -35,12 +60,20 @@ export const CreditProvider = ({ children }) => {
 
         const amountAsString = ethers.utils.parseEther(amount).toString();
 
-        await contract.addLiquidity(amountAsString, {
+        const txRes = await poolContract.addLiquidity(amountAsString, {
           gasLimit: 500000,
         });
+
+        await txRes.wait(1);
+        setAddLiquidityLoad(false);
+        toast.success("Transaction successful");
       }
     } catch (error) {
-      console.log(error);
+      const parsedEthersError = getParsedEthersError(error);
+      toast.error(
+        `${parsedEthersError.errorCode} -> ${parsedEthersError.context}`
+      );
+      setAddLiquidityLoad(false);
     }
   };
 
@@ -57,21 +90,45 @@ export const CreditProvider = ({ children }) => {
           signer
         );
 
-        const txRes = await contract.lenderArrLength({
-          gasLimit: 500000,
-        });
+        const txRes = await contract.callStatic.poolLendersArr();
 
-        console.log(txRes);
+        const data = formatLiquidityProviders(txRes);
+        setAllPoolLenders(data);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
+  const getTokenBalance = async (address) => {
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const contract = new ethers.Contract(
+          interexPoolAddress,
+          InterexPoolABI,
+          signer
+        );
+
+        const balance = await contract.callStatic.getTokenBalance(address);
+        // console.log("Token balance:", ethers.utils.formatEther(balance));
+        return balance;
+      }
+    } catch (error) {
+      const parsedEthersError = getParsedEthersError(error);
+      toast.error(
+        `${parsedEthersError.errorCode} -> ${parsedEthersError.context}`
+      );
+    }
+  };
+
   const borrowTokens = async (lender, amount) => {
     try {
       if (window.ethereum) {
-        setIsLoading(true);
+        setBorrowTokensLoad(true);
 
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
@@ -86,34 +143,61 @@ export const CreditProvider = ({ children }) => {
         const txRes = await contract.borrowTokens(lender, amount, {
           gasLimit: 500000,
         });
-
-        setIsLoading(false);
         console.log(txRes);
+
+        await txRes.wait(1);
+        setBorrowTokensLoad(false);
       }
     } catch (error) {
-      console.log(error);
+      const parsedEthersError = getParsedEthersError(error);
+      toast.error(
+        `${parsedEthersError.errorCode} -> ${parsedEthersError.context}`
+      );
+      setBorrowTokensLoad(false);
+    }
+  };
+
+  const getPoolEarnings = async (address) => {
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const contract = new ethers.Contract(
+          interexPoolAddress,
+          InterexPoolABI,
+          signer
+        );
+
+        const balance = await contract.callStatic.getPoolEarnings(address);
+        // console.log("Token balance:", ethers.utils.formatEther(balance));
+        return balance;
+      }
+    } catch (error) {
+      const parsedEthersError = getParsedEthersError(error);
+      toast.error(
+        `${parsedEthersError.errorCode} -> ${parsedEthersError.context}`
+      );
     }
   };
 
   return (
     <CreditContext.Provider
       value={{
-        first,
-        setFirst,
-        tokenA,
-        setTokenA,
-        tokenB,
-        setTokenB,
-        currentUser,
-        setCurrentUser,
         interexPoolAddress,
         addLiquidity,
         liquidityProvidersArr,
         poolBalance,
         setPoolBalance,
         borrowTokens,
-        isLoading,
-        setIsLoading,
+        addLiquidityLoad,
+        setAddLiquidityLoad,
+        borrowTokensLoad,
+        setBorrowTokensLoad,
+        getTokenBalance,
+        allPoolLenders,
+        getPoolEarnings,
       }}
     >
       {children}
