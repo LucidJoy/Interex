@@ -18,20 +18,6 @@ import { shortenAddress } from "@/utils/shortenAddr";
 const Home = () => {
   const { allPoolLenders, liquidityProvidersArr } = useContext(CreditContext);
 
-  const [allLenders, setAllLenders] = useState(0);
-
-  // useEffect(() => {
-  //   const all = async () => {
-  //     const val = await liquidityProvidersArr();
-  //     setAllLenders(val);
-  //   };
-  //   all();
-  // }, [liquidityProvidersArr, allLenders]);
-
-  // const handleClick = () => {
-  //   console.log(allPoolLenders);
-  // };
-
   const router = useRouter();
 
   return (

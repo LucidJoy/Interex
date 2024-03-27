@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import Image from "next/image";
 import { ConnectKitButton } from "connectkit";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
+import { CreditContext } from "@/context/CreditContext";
 import { Button } from "@/components/ui/button";
 import logo from "../assets/logo.svg";
 import { cn } from "@/lib/utils";
 
 const Navbar = () => {
+  const { queryParameter, setQueryParameter } = useContext(CreditContext);
+
   const router = useRouter();
 
   return (
@@ -59,17 +63,25 @@ const Navbar = () => {
             Pool
           </Button>
 
-          <Button
-            variant='ghost'
-            onClick={() => router.push("/account")}
-            className={cn(
-              "",
-              router.pathname == "/account" &&
-                "bg-accent text-accent-foreground"
-            )}
+          <Link
+            href={{
+              pathname: "/account",
+              query: { component: queryParameter },
+            }}
+            style={{
+              color: "#fff",
+            }}
           >
-            Account
-          </Button>
+            <Button
+              variant='ghost'
+              className={cn(
+                "",
+                router.query == "profile" && "bg-accent text-accent-foreground"
+              )}
+            >
+              Account
+            </Button>
+          </Link>
         </div>
       </div>
 

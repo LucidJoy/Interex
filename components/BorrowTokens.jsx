@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useAccount, useBalance, useContractRead } from "wagmi";
+import { useAccount } from "wagmi";
 import { ethers } from "ethers";
+import { toast } from "sonner";
+import { RotateCw } from "lucide-react";
 
 import {
   Card,
@@ -13,19 +15,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
-import interexPoolABI from "../context/InterexPool.json";
-
 import { CreditContext } from "@/context/CreditContext";
-import { toast } from "sonner";
 import Loading from "./Loading";
-import { RotateCw } from "lucide-react";
 
 const BorrowTokens = () => {
   const {
     borrowTokens,
-    interexPoolAddress,
     borrowTokensLoad,
     getPoolEarnings,
+    lenderBorrowerMapping,
+    setLenderBorrowerMapping,
   } = useContext(CreditContext);
   const { address } = useAccount();
 
@@ -45,10 +44,28 @@ const BorrowTokens = () => {
     }
   };
 
+  const handleBorrow = () => {
+    try {
+      const borrowerInfo = lenderBorrowerMapping.get(lenderAddress) || [];
+
+      borrowerInfo.push({ borrower: address, amount: borrowAmount });
+
+      setLenderBorrowerMapping(
+        new Map(lenderBorrowerMapping.set(lenderAddress, borrowerInfo))
+      );
+      toast.success("Borrow request successful");
+    } catch (error) {
+      console.log(error);
+      toast.error("Borrow request error");
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Borrow Tokens</CardTitle>
+        <CardTitle onClick={() => console.log(lenderBorrowerMapping)}>
+          Borrow Tokens
+        </CardTitle>
         <CardDescription>
           Change your password here. After saving, you'll be logged out.
         </CardDescription>
@@ -92,7 +109,7 @@ const BorrowTokens = () => {
           </div>
           <div className='flex items-center flex-row justify-between w-full'>
             <div className='flex flex-row items-center justify-center gap-[10px]'>
-              <p className='text-muted-foreground'>Lender balance (INTX): </p>
+              <p className='text-muted-foreground'>Lender earnings (INTX): </p>
 
               <div
                 className='bg-muted-foreground/30 border border-white/20 rounded-sm py-[4px] px-[6px] hover:cursor-pointer'
@@ -117,7 +134,10 @@ const BorrowTokens = () => {
             <Loading />
           </div>
         ) : (
-          <Button onClick={() => borrowTokens(lenderAddress, borrowAmount)}>
+          <Button
+            // onClick={() => borrowTokens(lenderAddress, borrowAmount.toString())}
+            onClick={() => handleBorrow()}
+          >
             Borrow
           </Button>
         )}
