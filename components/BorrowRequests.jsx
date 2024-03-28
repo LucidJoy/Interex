@@ -1,5 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import Image from "next/image";
+import { RotateCw } from "lucide-react";
+import { toast } from "sonner";
 
 import { CreditContext } from "@/context/CreditContext";
 import Hint from "./Hint";
@@ -28,13 +30,34 @@ const BorrowRequests = () => {
     borrowTokens(address, borrower, amount.toString());
   };
 
+  const handleRefresh = async () => {
+    try {
+      //dummy
+      toast.success("Refreshed");
+    } catch (error) {
+      toast.error("Something went wrong.");
+    }
+  };
+
   return (
     <div className='flex items-center justify-center flex-col mt-[50px] w-[calc(100vw-250px)] ml-[250px]'>
       <div className='text-white w-[1000px]'>
         <div className='flex flex-row justify-between items-center mb-[20px]'>
-          <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
-            Borrow Requests
-          </h3>
+          <div className='flex flex-row gap-[15px] items-center justify-center'>
+            <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
+              Borrow Requests
+            </h3>
+
+            <Hint label='Refresh' side='top' align='center' sideOffset={5}>
+              <Button
+                variant='refresh'
+                size='icon'
+                onClick={() => handleRefresh()}
+              >
+                <RotateCw className='h-4 w-4' />
+              </Button>
+            </Hint>
+          </div>
         </div>
 
         <Table>
@@ -49,7 +72,8 @@ const BorrowRequests = () => {
           </TableHeader>
 
           <TableBody>
-            {lenderBorrowerMapping && lenderBorrowerMapping.get(address) ? (
+            {lenderBorrowerMapping &&
+              lenderBorrowerMapping.get(address) &&
               lenderBorrowerMapping.get(address).map((borrower, index) => (
                 <TableRow key={index} className='text-center'>
                   <TableCell className='font-medium'>{index + 1}</TableCell>
@@ -75,14 +99,7 @@ const BorrowRequests = () => {
                     </TableCell>
                   )}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className='text-center'>
-                  No requests pending.
-                </TableCell>
-              </TableRow>
-            )}
+              ))}
           </TableBody>
         </Table>
       </div>

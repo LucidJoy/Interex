@@ -17,15 +17,15 @@ export const CreditProvider = ({ children }) => {
   const [allPoolLenders, setAllPoolLenders] = useState([]);
   const [queryParameter, setQueryParameter] = useState("profile");
   const [lenderBorrowerMapping, setLenderBorrowerMapping] = useState(new Map());
-  const [borrowingsData, setBorrowingsData] = useState([]);
 
   // loading states
   const [addLiquidityLoad, setAddLiquidityLoad] = useState(false);
   const [borrowTokensLoad, setBorrowTokensLoad] = useState(false);
   const [repayInterestLoad, setRepayInterestLoad] = useState(false);
+  const [removeLiquidityLoad, setRemoveLiquidityLoad] = useState(false);
 
-  const interex20Address = "0x94Fd5d05ED4D534e77C84EBA3990B30D97263Fd6";
-  const interexPoolAddress = "0xa4E3Db955afcb9aaf7Ac4bb049774FE58E306539";
+  const interex20Address = "0x116277799cF0c53A07Dabd2660222fd98Fe0ec71";
+  const interexPoolAddress = "0x6c167Ddc7E311E12C06769692627255BC916164E";
 
   // use effects
   useEffect(() => {
@@ -76,6 +76,34 @@ export const CreditProvider = ({ children }) => {
         `${parsedEthersError.errorCode} -> ${parsedEthersError.context}`
       );
       setAddLiquidityLoad(false);
+    }
+  };
+
+  const removeLiquidity = async (lender, amount) => {
+    try {
+      if (window.ethereum) {
+        setRemoveLiquidityLoad(true);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const poolContract = new ethers.Contract(
+          interexPoolAddress,
+          InterexPoolABI,
+          signer
+        );
+
+        const txRes = await poolContract.removeLiquidity(lender, {
+          gasLimit: 500000,
+        });
+
+        await txRes.wait(1);
+        setRemoveLiquidityLoad(false);
+        toast.success("Liquidity removed successfully.");
+      }
+    } catch (error) {
+      console.log(error);
+      setRemoveLiquidityLoad(false);
     }
   };
 
@@ -318,6 +346,7 @@ export const CreditProvider = ({ children }) => {
         interexPoolAddress,
         addLiquidity,
         liquidityProvidersArr,
+        setAllPoolLenders,
         poolBalance,
         setPoolBalance,
         borrowTokens,
@@ -337,6 +366,8 @@ export const CreditProvider = ({ children }) => {
         getYourBorrowings,
         repayBorrowInterest,
         repayInterestLoad,
+        removeLiquidity,
+        removeLiquidityLoad,
       }}
     >
       {children}

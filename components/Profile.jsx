@@ -1,17 +1,17 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { toast } from "sonner";
-import { useRouter } from "next/router";
+import { ethers } from "ethers";
 
 import Hint from "@/components/Hint";
-import { Separator } from "@/components/ui/separator";
+import AvatarDemo from "./AvatarDemo";
 import { CreditContext } from "@/context/CreditContext";
 
 const Profile = () => {
   const { address } = useAccount();
-  const { queryParameter, setQueryParameter } = useContext(CreditContext);
+  const { getTokenBalance } = useContext(CreditContext);
 
-  const [currentUser, setCurrentUser] = useState("");
+  const [currentBalance, setCurrentBalance] = useState(null);
 
   const copyToClipboard = async () => {
     try {
@@ -23,7 +23,13 @@ const Profile = () => {
     }
   };
 
-  // useEffect(() => setCurrentUser(address), [address]);
+  useEffect(() => {
+    const func = async () => {
+      const balance = await getTokenBalance(address);
+      setCurrentBalance(ethers.utils.formatEther(balance));
+    };
+    func();
+  }, [address]);
 
   return (
     <div className='flex items-center justify-center flex-col mt-[50px] w-[calc(100vw-250px)] ml-[250px]'>
@@ -35,7 +41,8 @@ const Profile = () => {
         </div>
 
         <div className='flex flex-row mt-[30px] items-center gap-[20px] mb-[30px]'>
-          <div className='rounded-full bg-blue-700 h-[100px] w-[100px]'></div>
+          {/* <div className='rounded-full bg-blue-700 h-[100px] w-[100px]'></div> */}
+          <AvatarDemo />
 
           <div className='flex flex-col gap-[5px]'>
             <Hint
@@ -53,7 +60,10 @@ const Profile = () => {
             </Hint>
 
             <div className='text-muted-foreground text-[14px]'>
-              MATIC Testnet
+              Total balance:{" "}
+              <span className='font-semibold text-white/80'>
+                {currentBalance} INTX
+              </span>
             </div>
           </div>
         </div>

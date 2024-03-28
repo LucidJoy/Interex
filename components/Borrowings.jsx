@@ -1,5 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
+import { RotateCw } from "lucide-react";
 import { ethers } from "ethers";
+import { useAccount } from "wagmi";
+import { toast } from "sonner";
 
 import { CreditContext } from "@/context/CreditContext";
 import {
@@ -11,10 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils/shortenAddr";
 import { Button } from "./ui/button";
 import Loading from "./Loading";
+import Hint from "./Hint";
 
 const Borrowings = () => {
   const {
@@ -46,7 +49,6 @@ const Borrowings = () => {
         newArr.push(newObj);
       }
       setLatestLender(newArr);
-      console.log("hi");
     };
     fetchBorrowings();
   }, [address, latestLender.length]);
@@ -60,16 +62,50 @@ const Borrowings = () => {
     window.location.reload();
   };
 
+  const handleRefresh = async () => {
+    try {
+      const bors = await getYourBorrowings(address);
+
+      let newArr = [];
+      for (let i = 0; i < bors.length; i++) {
+        const res = await getAccruedInterest(bors[i].lender, address);
+        const interest = ethers.utils.formatEther(res);
+        const newObj = {
+          lender: bors[i].lender,
+          amountLended: ethers.utils.formatEther(bors[i].borrowAmt),
+          aci: interest,
+          isPaid: bors[i].isPaid,
+        };
+
+        newArr.push(newObj);
+      }
+      setLatestLender(newArr);
+
+      toast.success("Refreshed");
+    } catch (error) {
+      toast.error("Something went wrong.");
+    }
+  };
+
   return (
     <div className='flex items-center justify-center flex-col mt-[50px] w-[calc(100vw-250px)] ml-[250px]'>
       <div className='text-white w-[1000px]'>
         <div className='flex flex-row justify-between items-center mb-[20px]'>
-          <h3
-            className='scroll-m-20 text-2xl font-semibold tracking-normal'
-            onClick={() => console.log(latestLender)}
-          >
-            Borrowings
-          </h3>
+          <div className='flex flex-row gap-[15px] items-center justify-center'>
+            <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
+              Borrowings
+            </h3>
+
+            <Hint label='Refresh' side='top' align='center' sideOffset={5}>
+              <Button
+                variant='refresh'
+                size='icon'
+                onClick={() => handleRefresh()}
+              >
+                <RotateCw className='h-4 w-4' />
+              </Button>
+            </Hint>
+          </div>
         </div>
 
         <Table>
@@ -85,7 +121,7 @@ const Borrowings = () => {
           </TableHeader>
 
           <TableBody>
-            {latestLender.length > 0 ? (
+            {latestLender.length > 0 &&
               latestLender.map((lender, index) => (
                 <TableRow key={index} className='text-center'>
                   <TableCell className='font-medium'>{index + 1}</TableCell>
@@ -119,14 +155,7 @@ const Borrowings = () => {
                     </TableCell>
                   )}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className='text-center'>
-                  No borrowings pending.
-                </TableCell>
-              </TableRow>
-            )}
+              ))}
           </TableBody>
         </Table>
       </div>

@@ -186,7 +186,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_lender",
+        "type": "address"
+      }
+    ],
     "name": "removeLiquidity",
     "outputs": [],
     "stateMutability": "nonpayable",

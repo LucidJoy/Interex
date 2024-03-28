@@ -52,7 +52,7 @@ const AddLiquidity = () => {
       <CardHeader>
         <CardTitle>Add Liquidity</CardTitle>
         <CardDescription>
-          Change your password here. After saving, you'll be logged out.
+          Contribute your tokens to the liquidity pool and earn rewards.
         </CardDescription>
       </CardHeader>
 

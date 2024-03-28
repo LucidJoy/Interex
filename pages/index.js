@@ -19,7 +19,7 @@ export default function Home() {
     if (address === undefined) {
       toast.error("You must connect metamask wallet to proceed.");
     } else {
-      router.push("/home");
+      router.push("/pool");
     }
   };
 

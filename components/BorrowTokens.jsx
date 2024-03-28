@@ -12,6 +12,7 @@ import {
   CardDescription,
   CardTitle,
 } from "@/components/ui/card";
+import Hint from "./Hint";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
@@ -34,13 +35,13 @@ const BorrowTokens = () => {
 
   const handleRefresh = async () => {
     try {
-      // should be earnings, not balance
+      if (lenderAddress.length != 42) return toast.error("Invalid address.");
+
       const balance = await getPoolEarnings(lenderAddress);
       balance && setLenderPoolEarning(ethers?.utils?.formatEther(balance));
       toast.success("Refreshed");
     } catch (error) {
-      // toast.error("Lender address invalid.");
-      console.log(error);
+      toast.error("Something went wrong.");
     }
   };
 
@@ -67,7 +68,7 @@ const BorrowTokens = () => {
           Borrow Tokens
         </CardTitle>
         <CardDescription>
-          Change your password here. After saving, you'll be logged out.
+          Borrow tokens from lenders with mininmal interest.
         </CardDescription>
       </CardHeader>
 
@@ -111,14 +112,15 @@ const BorrowTokens = () => {
             <div className='flex flex-row items-center justify-center gap-[10px]'>
               <p className='text-muted-foreground'>Lender earnings (INTX): </p>
 
-              <div
-                className='bg-muted-foreground/30 border border-white/20 rounded-sm py-[4px] px-[6px] hover:cursor-pointer'
-                onClick={() => handleRefresh()}
-              >
-                <button className='font-normal text-[12px] flex items-center justify-center'>
-                  <RotateCw className='h-4 w-4 text-muted-foreground' />
-                </button>
-              </div>
+              <Hint label='Refresh' side='top' align='center' sideOffset={5}>
+                <Button
+                  variant='refresh'
+                  size='icon'
+                  onClick={() => handleRefresh()}
+                >
+                  <RotateCw className='h-4 w-4' />
+                </Button>
+              </Hint>
             </div>
 
             <div className='font-semibold'>
@@ -134,12 +136,7 @@ const BorrowTokens = () => {
             <Loading />
           </div>
         ) : (
-          <Button
-            // onClick={() => borrowTokens(lenderAddress, borrowAmount.toString())}
-            onClick={() => handleBorrow()}
-          >
-            Borrow
-          </Button>
+          <Button onClick={() => handleBorrow()}>Borrow</Button>
         )}
       </CardFooter>
     </Card>

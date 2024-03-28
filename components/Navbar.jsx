@@ -43,17 +43,6 @@ const Navbar = () => {
 
           <Button
             variant='ghost'
-            onClick={() => router.push("/credit")}
-            className={cn(
-              "",
-              router.pathname == "/credit" && "bg-accent text-accent-foreground"
-            )}
-          >
-            Credit
-          </Button>
-
-          <Button
-            variant='ghost'
             onClick={() => router.push("/pool")}
             className={cn(
               "",
