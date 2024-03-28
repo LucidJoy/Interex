@@ -8,13 +8,14 @@ import { cn } from "@/utils/cn";
 import profileIcon from "../assets/profile.svg";
 import borrowIcon from "../assets/handshake.svg";
 import borrowers from "../assets/borrowers.svg";
-import Hint from "@/components/Hint";
+import borrowings from "../assets/borrowings.svg";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { CreditContext } from "@/context/CreditContext";
 import Profile from "@/components/Profile";
 import BorrowRequests from "@/components/BorrowRequests";
 import Borrowers from "@/components/Borrowers";
+import Borrowings from "@/components/Borrowings";
 
 const Account = () => {
   const { address } = useAccount();
@@ -61,12 +62,25 @@ const Account = () => {
             <Image src={borrowers} className='w-[20px] h-[20px]' />
             <p>Borrowers</p>
           </Button>
+
+          <Button
+            variant='sidebar'
+            className={cn(
+              "w-full flex flex-row gap-[10px] items-center justify-start",
+              router.query.component === "borrowings" && "bg-[#383838]/80"
+            )}
+            onClick={() => router.push({ query: { component: "borrowings" } })}
+          >
+            <Image src={borrowings} className='w-[20px] h-[20px]' />
+            <p>Borrowings</p>
+          </Button>
         </div>
       </div>
 
       {router.query.component === "profile" && <Profile />}
       {router.query.component === "requests" && <BorrowRequests />}
       {router.query.component === "borrowers" && <Borrowers />}
+      {router.query.component === "borrowings" && <Borrowings />}
     </>
   );
 };

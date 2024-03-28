@@ -76,7 +76,8 @@ const Navbar = () => {
               variant='ghost'
               className={cn(
                 "",
-                router.query == "profile" && "bg-accent text-accent-foreground"
+                router.pathname == "/account" &&
+                  "bg-accent text-accent-foreground"
               )}
             >
               Account

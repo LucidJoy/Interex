@@ -19,15 +19,13 @@ const Home = () => {
   const { allPoolLenders, liquidityProvidersArr } = useContext(CreditContext);
 
   const router = useRouter();
+  console.log("hi");
 
   return (
     <div className='flex items-center justify-center flex-col mt-[50px]'>
       <div className='text-white w-[1000px]'>
         <div className='flex flex-row justify-between items-center mb-[20px]'>
-          <h3
-            className='scroll-m-20 text-2xl font-semibold tracking-normal'
-            onClick={() => console.log(allPoolLenders)}
-          >
+          <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
             Liquidity Providers
           </h3>
           <Button onClick={() => router.push("/pool")}>Add Liquidity</Button>

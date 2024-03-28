@@ -17,19 +17,16 @@ import tick from "../assets/tick.svg";
 import cross from "../assets/cross.svg";
 import { useAccount } from "wagmi";
 import { shortenAddress } from "@/utils/shortenAddr";
+import Loading from "./Loading";
 
 const BorrowRequests = () => {
-  const { lenderBorrowerMapping, borrowTokens } = useContext(CreditContext);
+  const { lenderBorrowerMapping, borrowTokens, borrowTokensLoad } =
+    useContext(CreditContext);
   const { address } = useAccount();
 
   const handleBorrow = (borrower, amount) => {
     borrowTokens(address, borrower, amount.toString());
-    // console.log(address, borrower, amount.toString());
   };
-
-  // useEffect(() => {
-  //   console.log(lenderBorrowerMapping);
-  // }, [address]);
 
   return (
     <div className='flex items-center justify-center flex-col mt-[50px] w-[calc(100vw-250px)] ml-[250px]'>
@@ -58,19 +55,25 @@ const BorrowRequests = () => {
                   <TableCell className='font-medium'>{index + 1}</TableCell>
                   <TableCell>{shortenAddress(borrower.borrower)}</TableCell>
                   <TableCell>{borrower.amount}</TableCell>
-                  <TableCell className='text-center flex flex-row gap-[10px] items-center justify-center'>
-                    <Button
-                      variant='green'
-                      onClick={() =>
-                        handleBorrow(borrower.borrower, borrower.amount)
-                      }
-                    >
-                      <Image src={tick} />
-                    </Button>
-                    <Button variant='red'>
-                      <Image src={cross} />
-                    </Button>
-                  </TableCell>
+                  {borrowTokensLoad ? (
+                    <TableCell className='flex items-center justify-center'>
+                      <Loading />
+                    </TableCell>
+                  ) : (
+                    <TableCell className='text-center flex flex-row gap-[10px] items-center justify-center'>
+                      <Button
+                        variant='green'
+                        onClick={() =>
+                          handleBorrow(borrower.borrower, borrower.amount)
+                        }
+                      >
+                        <Image src={tick} />
+                      </Button>
+                      <Button variant='red'>
+                        <Image src={cross} />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (

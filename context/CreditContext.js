@@ -22,14 +22,15 @@ export const CreditProvider = ({ children }) => {
   // loading states
   const [addLiquidityLoad, setAddLiquidityLoad] = useState(false);
   const [borrowTokensLoad, setBorrowTokensLoad] = useState(false);
+  const [repayInterestLoad, setRepayInterestLoad] = useState(false);
 
-  const interex20Address = "0xa6366591489011D61b5b99d2649a5DdE0e330D86";
-  const interexPoolAddress = "0xBF616602715dC6434498787b2a3dA8C7a4BF1fA5";
+  const interex20Address = "0x94Fd5d05ED4D534e77C84EBA3990B30D97263Fd6";
+  const interexPoolAddress = "0xa4E3Db955afcb9aaf7Ac4bb049774FE58E306539";
 
   // use effects
   useEffect(() => {
     liquidityProvidersArr();
-  }, [allPoolLenders]);
+  }, [allPoolLenders.length]);
 
   const addLiquidity = async (amount) => {
     try {
@@ -175,6 +176,51 @@ export const CreditProvider = ({ children }) => {
     }
   };
 
+  const repayBorrowInterest = async (lender, borrower, amount) => {
+    // borrower => approve contract => contract pay lender
+
+    try {
+      if (window.ethereum) {
+        setRepayInterestLoad(true);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const tokenContract = new ethers.Contract(
+          interex20Address,
+          Interex20ABI,
+          signer
+        );
+
+        const amountToApprove = ethers.utils.parseEther(amount).toString();
+        const approvalTx = await tokenContract.approve(
+          interexPoolAddress,
+          amountToApprove,
+          { gasLimit: 500000 }
+        );
+        await approvalTx.wait(1);
+
+        const poolContract = new ethers.Contract(
+          interexPoolAddress,
+          InterexPoolABI,
+          signer
+        );
+
+        const txRes = await poolContract.repayBorrowInterest(lender, borrower, {
+          gasLimit: 500000,
+        });
+
+        await txRes.wait(1);
+        setRepayInterestLoad(false);
+        toast.success("Interest repaid successfully.");
+      }
+    } catch (error) {
+      console.log(error);
+      setRepayInterestLoad(false);
+      toast.error("Failed to repay interest.");
+    }
+  };
+
   const getPoolEarnings = async (address) => {
     try {
       if (window.ethereum) {
@@ -245,6 +291,27 @@ export const CreditProvider = ({ children }) => {
     }
   };
 
+  const getYourBorrowings = async (lender) => {
+    try {
+      if (window.ethereum) {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+
+        const contract = new ethers.Contract(
+          interexPoolAddress,
+          InterexPoolABI,
+          signer
+        );
+
+        const borrowers = await contract.callStatic.getYourBorrowings(lender);
+        return borrowers;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <CreditContext.Provider
       value={{
@@ -267,6 +334,9 @@ export const CreditProvider = ({ children }) => {
         setLenderBorrowerMapping,
         getYourBorrowers,
         getAccruedInterest,
+        getYourBorrowings,
+        repayBorrowInterest,
+        repayInterestLoad,
       }}
     >
       {children}

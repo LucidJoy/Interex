@@ -17,9 +17,6 @@ import { shortenAddress } from "@/utils/shortenAddr";
 const Borrowers = () => {
   const { getAccruedInterest, getYourBorrowers } = useContext(CreditContext);
 
-  // with earch {address} borrowers array will change using useeffect
-
-  const [allBorrowers, setAllBorrowers] = useState([]);
   const [latestBorrower, setLatestBorrower] = useState([]);
 
   const { address } = useAccount();
@@ -27,7 +24,6 @@ const Borrowers = () => {
   useEffect(() => {
     const fetchBorrowers = async () => {
       const bors = await getYourBorrowers(address);
-      setAllBorrowers(bors);
 
       let newArray = [];
       for (let i = 0; i < bors.length; i++) {
@@ -45,6 +41,27 @@ const Borrowers = () => {
     };
     fetchBorrowers();
   }, [address]);
+
+  useEffect(() => {
+    const fetchBorrowers = async () => {
+      const bors = await getYourBorrowers(address);
+
+      let newArray = [];
+      for (let i = 0; i < bors.length; i++) {
+        const response = await getAccruedInterest(address, bors[i][0]);
+        const interest = ethers.utils.formatEther(response);
+        const newObj = {
+          borrower: bors[i].user,
+          aci: interest,
+          amount: ethers.utils.formatEther(bors[i].amountBorrowed),
+        };
+
+        newArray.push(newObj);
+      }
+      setLatestBorrower(newArray);
+    };
+    fetchBorrowers();
+  }, []);
 
   return (
     <div className='flex items-center justify-center flex-col mt-[50px] w-[calc(100vw-250px)] ml-[250px]'>
@@ -70,7 +87,7 @@ const Borrowers = () => {
           </TableHeader>
 
           <TableBody>
-            {latestBorrower ? (
+            {latestBorrower.length > 0 ? (
               latestBorrower.map((borrower, index) => (
                 <TableRow key={index} className='text-center'>
                   <TableCell className='font-medium'>{index + 1}</TableCell>
