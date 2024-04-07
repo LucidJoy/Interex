@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { CreditContext } from "@/context/CreditContext";
 import { shortenAddress } from "@/utils/shortenAddr";
 import Loading from "@/components/Loading";
+import { copyToClipboard } from "@/utils/copyToClipboard";
 
 const Home = () => {
   const {
@@ -24,7 +25,10 @@ const Home = () => {
     removeLiquidity,
     removeLiquidityLoad,
     liquidityProvidersArr,
+    getYourBorrowers,
   } = useContext(CreditContext);
+
+  const [lenderInfo, setLenderInfo] = useState([]);
 
   const router = useRouter();
 
@@ -41,12 +45,42 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchLenderInfo = async () => {
+      let newArr = [];
+      for (const [index, lender] of allPoolLenders.entries()) {
+        const bors = await getYourBorrowers(lender.lender);
+        const filteredBors = bors.filter(
+          (borrower) => Number(borrower.amountBorrowed) != 0
+        );
+
+        console.log(bors);
+        const newObj = {
+          amountLended: lender.amountLended,
+          borrowerEarnings: lender.borrowerEarnings,
+          depositTime: lender.depositTime,
+          lender: lender.lender,
+          poolEarnings: lender.poolEarnings,
+          bors: filteredBors.length,
+        };
+        newArr.push(newObj);
+      }
+
+      setLenderInfo(newArr);
+    };
+
+    fetchLenderInfo();
+  }, [allPoolLenders]);
+
   return (
     <div className='flex items-center justify-center flex-col mt-[50px]'>
       <div className='text-white w-[1000px]'>
         <div className='flex flex-row justify-between items-center mb-[20px]'>
           <div className='flex flex-row gap-[15px] items-center justify-center'>
-            <h3 className='scroll-m-20 text-2xl font-semibold tracking-normal'>
+            <h3
+              className='scroll-m-20 text-2xl font-semibold tracking-normal'
+              onClick={() => console.log(lenderInfo)}
+            >
               Liquidity Providers
             </h3>
 
@@ -77,16 +111,21 @@ const Home = () => {
           </TableHeader>
 
           <TableBody>
-            {allPoolLenders &&
-              allPoolLenders
+            {lenderInfo &&
+              lenderInfo
                 .filter((lender) => lender.amountLended > 0)
                 .map((lender, idx) => (
                   <TableRow className='text-center'>
                     <TableCell className='font-medium'>{idx + 1}</TableCell>
-                    <TableCell>{shortenAddress(lender.lender)}</TableCell>
+                    <TableCell
+                      onClick={() => copyToClipboard(lender.lender)}
+                      className='cursor-pointer'
+                    >
+                      {shortenAddress(lender.lender)}
+                    </TableCell>
                     <TableCell>{lender.amountLended}</TableCell>
                     <TableCell>{lender.poolEarnings}</TableCell>
-                    <TableCell>0 (HC)</TableCell>
+                    <TableCell>{lender.bors}</TableCell>
                     <TableCell className='text-center'>
                       {removeLiquidityLoad ? (
                         <div className='flex items-center justify-center'>

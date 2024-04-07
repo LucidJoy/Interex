@@ -24,8 +24,8 @@ export const CreditProvider = ({ children }) => {
   const [repayInterestLoad, setRepayInterestLoad] = useState(false);
   const [removeLiquidityLoad, setRemoveLiquidityLoad] = useState(false);
 
-  const interex20Address = "0x116277799cF0c53A07Dabd2660222fd98Fe0ec71";
-  const interexPoolAddress = "0x6c167Ddc7E311E12C06769692627255BC916164E";
+  const interex20Address = "0x4BB20f2FCF329FEd86674659Fb372f283098DaBb";
+  const interexPoolAddress = "0x643012a11894d81B3a76EC4355B85cd4809Df380";
 
   // use effects
   useEffect(() => {

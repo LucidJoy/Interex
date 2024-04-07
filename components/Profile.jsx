@@ -6,22 +6,13 @@ import { ethers } from "ethers";
 import Hint from "@/components/Hint";
 import AvatarDemo from "./AvatarDemo";
 import { CreditContext } from "@/context/CreditContext";
+import { copyToClipboard } from "@/utils/copyToClipboard";
 
 const Profile = () => {
   const { address } = useAccount();
   const { getTokenBalance } = useContext(CreditContext);
 
   const [currentBalance, setCurrentBalance] = useState(null);
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard
-        .writeText(address)
-        .then(() => toast.success("Copied to clipboard."));
-    } catch (err) {
-      toast.error("Failed to copy.");
-    }
-  };
 
   useEffect(() => {
     const func = async () => {
@@ -53,7 +44,7 @@ const Profile = () => {
             >
               <div
                 className='text-[18px] font-medium cursor-pointer'
-                onClick={copyToClipboard}
+                onClick={() => copyToClipboard(address)}
               >
                 {address && address}
               </div>
