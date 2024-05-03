@@ -79,7 +79,7 @@ const Home = () => {
           <div className='flex flex-row gap-[15px] items-center justify-center'>
             <h3
               className='scroll-m-20 text-2xl font-semibold tracking-normal'
-              onClick={() => console.log(lenderInfo)}
+              // onClick={() => console.log(lenderInfo)}
             >
               Liquidity Providers
             </h3>

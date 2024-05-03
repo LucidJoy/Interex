@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { toast } from "sonner";
 import { ethers } from "ethers";
 
 import Hint from "@/components/Hint";
@@ -17,7 +16,7 @@ const Profile = () => {
   useEffect(() => {
     const func = async () => {
       const balance = await getTokenBalance(address);
-      setCurrentBalance(ethers.utils.formatEther(balance));
+      balance && setCurrentBalance(ethers.utils.formatEther(balance));
     };
     func();
   }, [address]);
@@ -32,7 +31,6 @@ const Profile = () => {
         </div>
 
         <div className='flex flex-row mt-[30px] items-center gap-[20px] mb-[30px]'>
-          {/* <div className='rounded-full bg-blue-700 h-[100px] w-[100px]'></div> */}
           <AvatarDemo />
 
           <div className='flex flex-col gap-[5px]'>

@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { getParsedEthersError } from "@enzoferey/ethers-error-parser";
-import { useAccount } from "wagmi";
 import { toast } from "sonner";
 
 import InterexPoolABI from "./InterexPool.json";
@@ -24,8 +23,8 @@ export const CreditProvider = ({ children }) => {
   const [repayInterestLoad, setRepayInterestLoad] = useState(false);
   const [removeLiquidityLoad, setRemoveLiquidityLoad] = useState(false);
 
-  const interex20Address = "0x4BB20f2FCF329FEd86674659Fb372f283098DaBb";
-  const interexPoolAddress = "0x643012a11894d81B3a76EC4355B85cd4809Df380";
+  const interex20Address = "0x06d1BEa614C725980bE5a18284F4Cb96c227152a";
+  const interexPoolAddress = "0xB7410b0493DA47E4Ac158eeda1B2A752f3c8B2Be";
 
   // use effects
   useEffect(() => {

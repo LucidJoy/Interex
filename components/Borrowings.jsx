@@ -148,9 +148,7 @@ const Borrowings = () => {
                           Repay
                         </Button>
                       ) : (
-                        <TableCell className='font-semibold text-green-600'>
-                          Paid
-                        </TableCell>
+                        <div className='font-semibold text-green-600'>Paid</div>
                       )}
                     </TableCell>
                   )}

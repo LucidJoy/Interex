@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { WagmiConfig, createConfig } from "wagmi";
-import { polygonMumbai, kromaSepolia } from "wagmi/chains";
+import { polygonMumbai, sepolia } from "wagmi/chains";
 import {
   ConnectKitProvider,
   ConnectKitButton,
@@ -16,7 +16,7 @@ import "@/styles/globals.css";
 
 const config = createConfig(
   getDefaultConfig({
-    chains: [polygonMumbai, kromaSepolia],
+    chains: [polygonMumbai, sepolia],
 
     // Required API Keys
     alchemyId: "0YB05pw82Hcy9XURB229iSxTdo4CdN23", // or infuraId
